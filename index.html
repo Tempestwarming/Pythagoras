@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GCSE Pythagoras Tool - Edexcel Foundation</title>
+    <title>GCSE Pythagoras - Edexcel Foundation</title>
     <style>
         body {
             margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column;
@@ -12,11 +12,14 @@
             font-family: 'Arial Black', sans-serif; overflow: hidden;
         }
 
+        /* Fixed Timer Bar */
         .timer-bar {
             background: rgba(0, 0, 0, 0.9); color: white; padding: 15px 40px;
-            border-radius: 50px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;
+            border-radius: 50px; margin-bottom: 20px; display: flex; align-items: center;
+            gap: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
-        #timer-display { font-size: 2.5rem; font-family: monospace; color: #f1c40f; }
+        #timer-display { font-size: 3rem; font-weight: bold; font-family: monospace; min-width: 150px; text-align: center; color: #f1c40f; }
+        .timer-btn { background: #d4af37; border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; }
 
         .container {
             width: 96vw; height: 82vh; background-color: #fafaf8;
@@ -26,38 +29,43 @@
 
         .problem-section { padding: 30px; display: flex; flex-direction: column; align-items: center; background: white; border-right: 3px solid #eee; }
         
-        /* Triangle Visual Container */
+        /* Triangle Visual */
         .triangle-container {
-            position: relative; width: 300px; height: 200px; margin: 40px 0;
-            border-bottom: 8px solid #333; border-left: 8px solid #333;
+            position: relative; width: 300px; height: 200px; margin: 60px 0;
+            border-bottom: 10px solid #333; border-left: 10px solid #333;
         }
         .hypotenuse-line {
-            position: absolute; top: 0; left: 0; width: 365px; height: 8px;
+            position: absolute; top: 0; left: 0; width: 365px; height: 10px;
             background: #333; transform: rotate(33.7deg); transform-origin: 0 0;
         }
-        .label { position: absolute; font-size: 1.8rem; color: #1b5e20; font-weight: 900; }
-        .label-a { left: -45px; top: 40%; }
-        .label-b { bottom: -50px; left: 45%; }
-        .label-c { right: -30px; top: 30%; }
+        .label { position: absolute; font-size: 2.2rem; color: #1b5e20; font-weight: 900; }
+        .label-a { left: -60px; top: 40%; }
+        .label-b { bottom: -60px; left: 45%; }
+        .label-c { right: -40px; top: 30%; }
 
-        .level-select button { padding: 12px 20px; font-size: 1rem; margin: 5px; cursor: pointer; border: none; border-radius: 8px; background: #1b5e20; color: white; font-weight: bold; }
-        
-        .input-area { font-size: 2rem; margin-top: 20px; }
-        input { width: 140px; padding: 10px; font-size: 2rem; border: 5px solid #d4af37; border-radius: 12px; text-align: center; }
+        .level-select button { padding: 12px 20px; font-size: 1.1rem; margin: 5px; cursor: pointer; border: none; border-radius: 10px; background: #1b5e20; color: white; font-weight: bold; }
+        .level-select button:hover { background: #27ae60; }
 
+        input { width: 150px; padding: 10px; font-size: 2.2rem; border: 5px solid #d4af37; border-radius: 12px; text-align: center; font-weight: bold; }
         .action-btn { padding: 20px; font-size: 1.8rem; background: #1b5e20; color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; width: 80%; font-weight: bold; }
-        
+
         .help-section { padding: 30px; background-color: #f4f4f2; display: flex; flex-direction: column; }
-        .instruction-step { background: white; border-left: 10px solid #d4af37; padding: 15px; margin: 8px 0; font-size: 1.2rem; }
-        #feedback { font-size: 2.2rem; margin-top: 15px; font-weight: 900; }
-        #hint-display, #answer-display { margin-top: 10px; display: none; }
+        .instruction-step { background: white; border-left: 10px solid #d4af37; padding: 15px; margin: 10px 0; font-size: 1.3rem; }
+        #feedback { font-size: 2.5rem; margin-top: 15px; font-weight: 900; height: 50px; }
+        .reveal-btn { background: #444; color: white; border: none; padding: 12px; margin-top: 10px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        
+        .times-up { color: #ff0000 !important; animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div class="timer-bar">
+        <button class="timer-btn" onclick="adjustTimer(-30)">- 30s</button>
         <div id="timer-display">02:00</div>
-        <button onclick="toggleTimer()" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">START/PAUSE</button>
+        <button class="timer-btn" onclick="adjustTimer(30)">+ 30s</button>
+        <button class="timer-btn" id="start-pause-btn" onclick="toggleTimer()" style="background: #27ae60; width: 130px;">START</button>
+        <button class="timer-btn" onclick="resetTimer()" style="background: #c0392b;">RESET</button>
     </div>
 
     <div class="container">
@@ -75,26 +83,26 @@
                 <div id="sideC" class="label label-c">c</div>
             </div>
 
-            <div class="input-area">
-                Missing Side = <input type="number" id="userAns" step="0.1">
+            <div style="font-size: 2rem; font-weight: bold;">
+                Side = <input type="number" id="userAns" step="0.1">
             </div>
-            <p style="font-size: 0.9rem; color: #666;">Round your answer to 1 decimal place.</p>
+            <p style="color: #666; font-size: 1rem; margin-top: 10px;">Round to 1 decimal place</p>
             
             <button class="action-btn" onclick="checkAnswer()">CHECK ANSWER</button>
             <div id="feedback"></div>
         </div>
 
         <div class="help-section">
-            <h2 style="color: #1b5e20; border-bottom: 3px solid #d4af37;">Pythagoras Steps</h2>
-            <div class="instruction-step">1. <b>Square:</b> Square both known numbers.</div>
-            <div class="instruction-step">2. <b>+/- :</b> Finding C? <b>Add</b>. Finding A or B? <b>Subtract</b>.</div>
-            <div class="instruction-step">3. <b>Root:</b> Square root the result for the final answer.</div>
+            <h2 style="color: #1b5e20; border-bottom: 3px solid #d4af37; font-size: 2rem;">Pythagoras Method</h2>
+            <div class="instruction-step">1. <b>Square:</b> Multiply the numbers by themselves.</div>
+            <div class="instruction-step">2. <b>+/- :</b> Finding <b>C</b>? Add them. Finding <b>A or B</b>? Subtract them.</div>
+            <div class="instruction-step">3. <b>Root:</b> Square root the answer for the final side.</div>
 
-            <button onclick="toggleHint()" style="margin-top:20px;">Show Hint</button>
-            <div id="hint-display" class="instruction-step" style="background:#e8f5e9;"></div>
+            <button class="reveal-btn" onclick="toggleHint()">Show Hint</button>
+            <div id="hint-display" class="instruction-step" style="border-color: #1b5e20; background: #e8f5e9; display: none;"></div>
             
-            <button onclick="toggleAnswer()" style="margin-top:10px;">Reveal Answer</button>
-            <div id="answer-display" class="instruction-step" style="background:#fff3cd;"></div>
+            <button class="reveal-btn" onclick="toggleAnswer()">Reveal Answer</button>
+            <div id="answer-display" class="instruction-step" style="background: #fff3cd; display: none;"></div>
         </div>
     </div>
 
@@ -103,49 +111,82 @@
     let timeLeft = 120;
     let timerId = null;
 
-    function toggleTimer() {
-        if (timerId) { clearInterval(timerId); timerId = null; }
-        else { timerId = setInterval(() => { if(timeLeft > 0) { timeLeft--; updateTimer(); } }, 1000); }
-    }
-    function updateTimer() {
-        let m = Math.floor(timeLeft/60), s = timeLeft%60;
-        document.getElementById('timer-display').innerText = m.toString().padStart(2,'0')+":"+s.toString().padStart(2,'0');
+    // --- REPAIRED TIMER LOGIC ---
+    function updateTimerDisplay() {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        document.getElementById('timer-display').innerText = mins.toString().padStart(2, '0') + ":" + secs.toString().padStart(2, '0');
     }
 
+    function toggleTimer() {
+        const btn = document.getElementById('start-pause-btn');
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+            btn.innerText = "START";
+            btn.style.background = "#27ae60";
+        } else {
+            btn.innerText = "PAUSE";
+            btn.style.background = "#f39c12";
+            timerId = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerId);
+                    document.getElementById('timer-display').classList.add('times-up');
+                }
+            }, 1000);
+        }
+    }
+
+    function adjustTimer(amount) {
+        timeLeft = Math.max(0, timeLeft + amount);
+        updateTimerDisplay();
+    }
+
+    function resetTimer() {
+        clearInterval(timerId);
+        timerId = null;
+        timeLeft = 120;
+        document.getElementById('timer-display').classList.remove('times-up');
+        document.getElementById('start-pause-btn').innerText = "START";
+        document.getElementById('start-pause-btn').style.background = "#27ae60";
+        updateTimerDisplay();
+    }
+
+    // --- MATH LOGIC ---
     function generateProblem(level) {
         document.getElementById('feedback').innerText = "";
         document.getElementById('hint-display').style.display = "none";
         document.getElementById('answer-display').style.display = "none";
         document.getElementById('userAns').value = "";
 
-        // Generate sides (keeping them simple for Foundation)
         let a = Math.floor(Math.random() * 8) + 3;
         let b = Math.floor(Math.random() * 8) + 3;
-        let c = Math.sqrt(a*a + b*b);
+        let cRaw = Math.sqrt(a*a + b*b);
+        let cFormatted = parseFloat(cRaw.toFixed(1));
 
         if (level === 1) {
-            // Find C
             document.getElementById('sideA').innerText = a;
             document.getElementById('sideB').innerText = b;
             document.getElementById('sideC').innerText = "?";
-            correctAns = c.toFixed(1);
-            document.getElementById('hint-display').innerText = "Since we are finding the longest side (c), SQUARE them and ADD them: " + (a*a) + " + " + (b*b);
+            correctAns = cFormatted;
+            document.getElementById('hint-display').innerText = "Finding the Hypotenuse (c)? Square " + a + " and " + b + ", then ADD them before rooting.";
         } else if (level === 2) {
-            // Find B
             document.getElementById('sideA').innerText = a;
-            document.getElementById('sideC').innerText = c.toFixed(1);
+            document.getElementById('sideC').innerText = cFormatted;
             document.getElementById('sideB').innerText = "?";
             correctAns = b.toFixed(1);
-            document.getElementById('hint-display').innerText = "Finding a shorter side (b)? SQUARE them and SUBTRACT: " + (c.toFixed(1)*c.toFixed(1)).toFixed(0) + " - " + (a*a);
+            document.getElementById('hint-display').innerText = "Finding side b? Square " + cFormatted + " and " + a + ", then SUBTRACT them before rooting.";
         } else {
-            // Find A
             document.getElementById('sideB').innerText = b;
-            document.getElementById('sideC').innerText = c.toFixed(1);
+            document.getElementById('sideC').innerText = cFormatted;
             document.getElementById('sideA').innerText = "?";
             correctAns = a.toFixed(1);
-            document.getElementById('hint-display').innerText = "Finding a shorter side (a)? SQUARE them and SUBTRACT: " + (c.toFixed(1)*c.toFixed(1)).toFixed(0) + " - " + (b*b);
+            document.getElementById('hint-display').innerText = "Finding side a? Square " + cFormatted + " and " + b + ", then SUBTRACT them before rooting.";
         }
-        document.getElementById('answer-display').innerText = "Final Answer: " + correctAns;
+        document.getElementById('answer-display').innerText = "The correct answer is: " + correctAns;
     }
 
     function checkAnswer() {
@@ -156,8 +197,9 @@
     }
 
     function toggleHint() { let h = document.getElementById('hint-display'); h.style.display = h.style.display === "block" ? "none" : "block"; }
-    function toggleAnswer() { let a = document.getElementById('answer-display'); a.style.display = a.style.display === "block" ? "none" : "block"; }
+    function toggleAnswer() { let ad = document.getElementById('answer-display'); ad.style.display = ad.style.display === "block" ? "none" : "block"; }
 
+    updateTimerDisplay();
     generateProblem(1);
 </script>
 </body>
