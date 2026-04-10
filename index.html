@@ -5,54 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GCSE Pythagoras - Edexcel Foundation</title>
     <style>
+        /* Force everything to stay within the viewport */
+        * { box-sizing: border-box; }
         body {
-            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            display: flex; flex-direction: column;
             background: linear-gradient(135deg, #d4af37 0%, #1b5e20 100%);
-            font-family: 'Arial Black', sans-serif; overflow: hidden;
+            font-family: 'Arial Black', sans-serif;
+            overflow: hidden; /* Prevents the whole page from scrolling */
         }
 
-        /* Fixed Timer Bar */
+        /* Timer Bar - Centered at the top */
         .timer-bar {
-            background: rgba(0, 0, 0, 0.9); color: white; padding: 15px 40px;
-            border-radius: 50px; margin-bottom: 20px; display: flex; align-items: center;
-            gap: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            flex: 0 0 auto;
+            background: rgba(0, 0, 0, 0.9); color: white; 
+            padding: 10px 30px; margin: 10px auto;
+            border-radius: 50px; display: flex; align-items: center;
+            gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 10;
         }
-        #timer-display { font-size: 3rem; font-weight: bold; font-family: monospace; min-width: 150px; text-align: center; color: #f1c40f; }
-        .timer-btn { background: #d4af37; border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; }
+        #timer-display { font-size: 2.5rem; font-weight: bold; font-family: monospace; min-width: 120px; text-align: center; color: #f1c40f; }
+        .timer-btn { background: #d4af37; border: none; color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
 
+        /* Main Container - Responsive Heights */
         .container {
-            width: 96vw; height: 82vh; background-color: #fafaf8;
-            border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            display: grid; grid-template-columns: 1.2fr 0.8fr; overflow: hidden;
+            flex: 1; /* Takes up remaining space */
+            width: 96vw; margin: 0 auto 10px auto;
+            background-color: #fafaf8; border-radius: 20px;
+            display: grid; grid-template-columns: 1.2fr 0.8fr;
+            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .problem-section { padding: 30px; display: flex; flex-direction: column; align-items: center; background: white; border-right: 3px solid #eee; }
+        /* Left Side: Problem Section */
+        .problem-section { 
+            padding: 20px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-evenly; 
+            background: white; border-right: 2px solid #eee;
+        }
         
-        /* Triangle Visual */
         .triangle-container {
-            position: relative; width: 300px; height: 200px; margin: 60px 0;
-            border-bottom: 10px solid #333; border-left: 10px solid #333;
+            position: relative; width: 260px; height: 160px; margin: 20px 0;
+            border-bottom: 8px solid #333; border-left: 8px solid #333;
         }
         .hypotenuse-line {
-            position: absolute; top: 0; left: 0; width: 365px; height: 10px;
-            background: #333; transform: rotate(33.7deg); transform-origin: 0 0;
+            position: absolute; top: 0; left: 0; width: 310px; height: 8px;
+            background: #333; transform: rotate(31.5deg); transform-origin: 0 0;
         }
-        .label { position: absolute; font-size: 2.2rem; color: #1b5e20; font-weight: 900; }
-        .label-a { left: -60px; top: 40%; }
-        .label-b { bottom: -60px; left: 45%; }
-        .label-c { right: -40px; top: 30%; }
+        .label { position: absolute; font-size: 2rem; color: #1b5e20; font-weight: 900; }
+        .label-a { left: -50px; top: 40%; }
+        .label-b { bottom: -50px; left: 45%; }
+        .label-c { right: -30px; top: 30%; }
 
-        .level-select button { padding: 12px 20px; font-size: 1.1rem; margin: 5px; cursor: pointer; border: none; border-radius: 10px; background: #1b5e20; color: white; font-weight: bold; }
-        .level-select button:hover { background: #27ae60; }
+        .level-select button { padding: 10px 15px; font-size: 0.9rem; margin: 2px; cursor: pointer; border: none; border-radius: 8px; background: #1b5e20; color: white; font-weight: bold; }
 
-        input { width: 150px; padding: 10px; font-size: 2.2rem; border: 5px solid #d4af37; border-radius: 12px; text-align: center; font-weight: bold; }
-        .action-btn { padding: 20px; font-size: 1.8rem; background: #1b5e20; color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; width: 80%; font-weight: bold; }
+        input { width: 130px; padding: 8px; font-size: 1.8rem; border: 4px solid #d4af37; border-radius: 10px; text-align: center; font-weight: bold; }
+        .action-btn { padding: 15px; font-size: 1.5rem; background: #1b5e20; color: white; border: none; border-radius: 10px; cursor: pointer; width: 80%; font-weight: bold; }
 
-        .help-section { padding: 30px; background-color: #f4f4f2; display: flex; flex-direction: column; }
-        .instruction-step { background: white; border-left: 10px solid #d4af37; padding: 15px; margin: 10px 0; font-size: 1.3rem; }
-        #feedback { font-size: 2.5rem; margin-top: 15px; font-weight: 900; height: 50px; }
-        .reveal-btn { background: #444; color: white; border: none; padding: 12px; margin-top: 10px; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        /* Right Side: Help Section */
+        .help-section { padding: 20px; background-color: #f4f4f2; display: flex; flex-direction: column; overflow-y: auto; }
+        .instruction-step { background: white; border-left: 8px solid #d4af37; padding: 12px; margin: 6px 0; font-size: 1.1rem; }
+        
+        #feedback { font-size: 2rem; font-weight: 900; min-height: 2.5rem; text-align: center; margin-top: 10px; }
+        .reveal-btn { background: #444; color: white; border: none; padding: 10px; margin-top: 8px; cursor: pointer; border-radius: 6px; font-weight: bold; }
         
         .times-up { color: #ff0000 !important; animation: blink 0.8s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
@@ -64,7 +78,7 @@
         <button class="timer-btn" onclick="adjustTimer(-30)">- 30s</button>
         <div id="timer-display">02:00</div>
         <button class="timer-btn" onclick="adjustTimer(30)">+ 30s</button>
-        <button class="timer-btn" id="start-pause-btn" onclick="toggleTimer()" style="background: #27ae60; width: 130px;">START</button>
+        <button class="timer-btn" id="start-pause-btn" onclick="toggleTimer()" style="background: #27ae60;">START</button>
         <button class="timer-btn" onclick="resetTimer()" style="background: #c0392b;">RESET</button>
     </div>
 
@@ -83,20 +97,19 @@
                 <div id="sideC" class="label label-c">c</div>
             </div>
 
-            <div style="font-size: 2rem; font-weight: bold;">
+            <div style="font-size: 1.5rem;">
                 Side = <input type="number" id="userAns" step="0.1">
             </div>
-            <p style="color: #666; font-size: 1rem; margin-top: 10px;">Round to 1 decimal place</p>
             
             <button class="action-btn" onclick="checkAnswer()">CHECK ANSWER</button>
             <div id="feedback"></div>
         </div>
 
         <div class="help-section">
-            <h2 style="color: #1b5e20; border-bottom: 3px solid #d4af37; font-size: 2rem;">Pythagoras Method</h2>
-            <div class="instruction-step">1. <b>Square:</b> Multiply the numbers by themselves.</div>
-            <div class="instruction-step">2. <b>+/- :</b> Finding <b>C</b>? Add them. Finding <b>A or B</b>? Subtract them.</div>
-            <div class="instruction-step">3. <b>Root:</b> Square root the answer for the final side.</div>
+            <h2 style="color: #1b5e20; border-bottom: 2px solid #d4af37; font-size: 1.5rem; margin: 0;">Method</h2>
+            <div class="instruction-step">1. <b>Square:</b> Number x itself.</div>
+            <div class="instruction-step">2. <b>+/- :</b> Finding C? Add. Finding A or B? Subtract.</div>
+            <div class="instruction-step">3. <b>Root:</b> Square root the result.</div>
 
             <button class="reveal-btn" onclick="toggleHint()">Show Hint</button>
             <div id="hint-display" class="instruction-step" style="border-color: #1b5e20; background: #e8f5e9; display: none;"></div>
@@ -111,7 +124,6 @@
     let timeLeft = 120;
     let timerId = null;
 
-    // --- REPAIRED TIMER LOGIC ---
     function updateTimerDisplay() {
         let mins = Math.floor(timeLeft / 60);
         let secs = timeLeft % 60;
@@ -155,7 +167,6 @@
         updateTimerDisplay();
     }
 
-    // --- MATH LOGIC ---
     function generateProblem(level) {
         document.getElementById('feedback').innerText = "";
         document.getElementById('hint-display').style.display = "none";
@@ -172,21 +183,21 @@
             document.getElementById('sideB').innerText = b;
             document.getElementById('sideC').innerText = "?";
             correctAns = cFormatted;
-            document.getElementById('hint-display').innerText = "Finding the Hypotenuse (c)? Square " + a + " and " + b + ", then ADD them before rooting.";
+            document.getElementById('hint-display').innerText = "Finding C? Square " + a + " and " + b + ", then ADD them.";
         } else if (level === 2) {
             document.getElementById('sideA').innerText = a;
             document.getElementById('sideC').innerText = cFormatted;
             document.getElementById('sideB').innerText = "?";
             correctAns = b.toFixed(1);
-            document.getElementById('hint-display').innerText = "Finding side b? Square " + cFormatted + " and " + a + ", then SUBTRACT them before rooting.";
+            document.getElementById('hint-display').innerText = "Finding B? Square " + cFormatted + " and " + a + ", then SUBTRACT.";
         } else {
             document.getElementById('sideB').innerText = b;
             document.getElementById('sideC').innerText = cFormatted;
             document.getElementById('sideA').innerText = "?";
             correctAns = a.toFixed(1);
-            document.getElementById('hint-display').innerText = "Finding side a? Square " + cFormatted + " and " + b + ", then SUBTRACT them before rooting.";
+            document.getElementById('hint-display').innerText = "Finding A? Square " + cFormatted + " and " + b + ", then SUBTRACT.";
         }
-        document.getElementById('answer-display').innerText = "The correct answer is: " + correctAns;
+        document.getElementById('answer-display').innerText = "Answer: " + correctAns;
     }
 
     function checkAnswer() {
