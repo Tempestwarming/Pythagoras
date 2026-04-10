@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCSE Pythagoras Tool - Edexcel Foundation</title>
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: linear-gradient(135deg, #d4af37 0%, #1b5e20 100%);
+            font-family: 'Arial Black', sans-serif; overflow: hidden;
+        }
+
+        .timer-bar {
+            background: rgba(0, 0, 0, 0.9); color: white; padding: 15px 40px;
+            border-radius: 50px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px;
+        }
+        #timer-display { font-size: 2.5rem; font-family: monospace; color: #f1c40f; }
+
+        .container {
+            width: 96vw; height: 82vh; background-color: #fafaf8;
+            border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            display: grid; grid-template-columns: 1.2fr 0.8fr; overflow: hidden;
+        }
+
+        .problem-section { padding: 30px; display: flex; flex-direction: column; align-items: center; background: white; border-right: 3px solid #eee; }
+        
+        /* Triangle Visual Container */
+        .triangle-container {
+            position: relative; width: 300px; height: 200px; margin: 40px 0;
+            border-bottom: 8px solid #333; border-left: 8px solid #333;
+        }
+        .hypotenuse-line {
+            position: absolute; top: 0; left: 0; width: 365px; height: 8px;
+            background: #333; transform: rotate(33.7deg); transform-origin: 0 0;
+        }
+        .label { position: absolute; font-size: 1.8rem; color: #1b5e20; font-weight: 900; }
+        .label-a { left: -45px; top: 40%; }
+        .label-b { bottom: -50px; left: 45%; }
+        .label-c { right: -30px; top: 30%; }
+
+        .level-select button { padding: 12px 20px; font-size: 1rem; margin: 5px; cursor: pointer; border: none; border-radius: 8px; background: #1b5e20; color: white; font-weight: bold; }
+        
+        .input-area { font-size: 2rem; margin-top: 20px; }
+        input { width: 140px; padding: 10px; font-size: 2rem; border: 5px solid #d4af37; border-radius: 12px; text-align: center; }
+
+        .action-btn { padding: 20px; font-size: 1.8rem; background: #1b5e20; color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; width: 80%; font-weight: bold; }
+        
+        .help-section { padding: 30px; background-color: #f4f4f2; display: flex; flex-direction: column; }
+        .instruction-step { background: white; border-left: 10px solid #d4af37; padding: 15px; margin: 8px 0; font-size: 1.2rem; }
+        #feedback { font-size: 2.2rem; margin-top: 15px; font-weight: 900; }
+        #hint-display, #answer-display { margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="timer-bar">
+        <div id="timer-display">02:00</div>
+        <button onclick="toggleTimer()" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">START/PAUSE</button>
+    </div>
+
+    <div class="container">
+        <div class="problem-section">
+            <div class="level-select">
+                <button onclick="generateProblem(1)">LEVEL 1: Find C</button>
+                <button onclick="generateProblem(2)">LEVEL 2: Find B</button>
+                <button onclick="generateProblem(3)">LEVEL 3: Find A</button>
+            </div>
+
+            <div class="triangle-container">
+                <div class="hypotenuse-line"></div>
+                <div id="sideA" class="label label-a">a</div>
+                <div id="sideB" class="label label-b">b</div>
+                <div id="sideC" class="label label-c">c</div>
+            </div>
+
+            <div class="input-area">
+                Missing Side = <input type="number" id="userAns" step="0.1">
+            </div>
+            <p style="font-size: 0.9rem; color: #666;">Round your answer to 1 decimal place.</p>
+            
+            <button class="action-btn" onclick="checkAnswer()">CHECK ANSWER</button>
+            <div id="feedback"></div>
+        </div>
+
+        <div class="help-section">
+            <h2 style="color: #1b5e20; border-bottom: 3px solid #d4af37;">Pythagoras Steps</h2>
+            <div class="instruction-step">1. <b>Square:</b> Square both known numbers.</div>
+            <div class="instruction-step">2. <b>+/- :</b> Finding C? <b>Add</b>. Finding A or B? <b>Subtract</b>.</div>
+            <div class="instruction-step">3. <b>Root:</b> Square root the result for the final answer.</div>
+
+            <button onclick="toggleHint()" style="margin-top:20px;">Show Hint</button>
+            <div id="hint-display" class="instruction-step" style="background:#e8f5e9;"></div>
+            
+            <button onclick="toggleAnswer()" style="margin-top:10px;">Reveal Answer</button>
+            <div id="answer-display" class="instruction-step" style="background:#fff3cd;"></div>
+        </div>
+    </div>
+
+<script>
+    let correctAns = 0;
+    let timeLeft = 120;
+    let timerId = null;
+
+    function toggleTimer() {
+        if (timerId) { clearInterval(timerId); timerId = null; }
+        else { timerId = setInterval(() => { if(timeLeft > 0) { timeLeft--; updateTimer(); } }, 1000); }
+    }
+    function updateTimer() {
+        let m = Math.floor(timeLeft/60), s = timeLeft%60;
+        document.getElementById('timer-display').innerText = m.toString().padStart(2,'0')+":"+s.toString().padStart(2,'0');
+    }
+
+    function generateProblem(level) {
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('hint-display').style.display = "none";
+        document.getElementById('answer-display').style.display = "none";
+        document.getElementById('userAns').value = "";
+
+        // Generate sides (keeping them simple for Foundation)
+        let a = Math.floor(Math.random() * 8) + 3;
+        let b = Math.floor(Math.random() * 8) + 3;
+        let c = Math.sqrt(a*a + b*b);
+
+        if (level === 1) {
+            // Find C
+            document.getElementById('sideA').innerText = a;
+            document.getElementById('sideB').innerText = b;
+            document.getElementById('sideC').innerText = "?";
+            correctAns = c.toFixed(1);
+            document.getElementById('hint-display').innerText = "Since we are finding the longest side (c), SQUARE them and ADD them: " + (a*a) + " + " + (b*b);
+        } else if (level === 2) {
+            // Find B
+            document.getElementById('sideA').innerText = a;
+            document.getElementById('sideC').innerText = c.toFixed(1);
+            document.getElementById('sideB').innerText = "?";
+            correctAns = b.toFixed(1);
+            document.getElementById('hint-display').innerText = "Finding a shorter side (b)? SQUARE them and SUBTRACT: " + (c.toFixed(1)*c.toFixed(1)).toFixed(0) + " - " + (a*a);
+        } else {
+            // Find A
+            document.getElementById('sideB').innerText = b;
+            document.getElementById('sideC').innerText = c.toFixed(1);
+            document.getElementById('sideA').innerText = "?";
+            correctAns = a.toFixed(1);
+            document.getElementById('hint-display').innerText = "Finding a shorter side (a)? SQUARE them and SUBTRACT: " + (c.toFixed(1)*c.toFixed(1)).toFixed(0) + " - " + (b*b);
+        }
+        document.getElementById('answer-display').innerText = "Final Answer: " + correctAns;
+    }
+
+    function checkAnswer() {
+        let val = parseFloat(document.getElementById('userAns').value);
+        let fb = document.getElementById('feedback');
+        if (val == correctAns) { fb.innerText = "✅ CORRECT!"; fb.style.color = "green"; }
+        else { fb.innerText = "❌ TRY AGAIN"; fb.style.color = "red"; }
+    }
+
+    function toggleHint() { let h = document.getElementById('hint-display'); h.style.display = h.style.display === "block" ? "none" : "block"; }
+    function toggleAnswer() { let a = document.getElementById('answer-display'); a.style.display = a.style.display === "block" ? "none" : "block"; }
+
+    generateProblem(1);
+</script>
+</body>
+</html>
